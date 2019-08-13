@@ -3,4 +3,4 @@ The Official Implement of ICCV 2019 oral paper Bayesian Loss for Crowd Count Est
 
 The Paper is available now： https://arxiv.org/pdf/1908.03716.pdf
 
-Code is coming soon.
+The Code is coming soon.
