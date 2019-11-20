@@ -1,23 +1,21 @@
-# Bayesian-Crowd-Counting
+# Bayesian-Crowd-Counting （ICCV 2019 oral）
 [Arxiv](https://arxiv.org/abs/1908.03684) | [CVF](http://openaccess.thecvf.com/content_ICCV_2019/papers/Ma_Bayesian_Loss_for_Crowd_Count_Estimation_With_Point_Supervision_ICCV_2019_paper.pdf) 
 ###  Official Implement of ICCV 2019 oral paper "Bayesian Loss for Crowd Count Estimation with Point Supervision"
-####  ICCV 2019(oral)
-
 
 ## Visualization
-# Bayesian
+### Bayesian
 
 ![](imgs/bayesian.png)
 
-# Bayesian+
+### Bayesian+
 
 ![](imgs/bayesian+.png)
 
-# Density
+### Density
 
 ![](imgs/density.png)
 
-### Citation
+## Citation
 If you use this code for your research, please cite our paper:
 
 ```
