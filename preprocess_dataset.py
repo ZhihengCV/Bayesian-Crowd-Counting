@@ -4,6 +4,7 @@ import numpy as np
 import os
 from glob import glob
 import cv2
+import argparse
 
 
 def cal_new_size(im_h, im_w, min_size, max_size):
@@ -32,6 +33,12 @@ def cal_new_size(im_h, im_w, min_size, max_size):
     return im_h, im_w, ratio
 
 
+def find_dis(point):
+    square = np.sum(point*points, axis=1)
+    dis = np.sqrt(np.maximum(square[:, None] - 2*np.matmul(point, point.T) + square[None, :], 0.0))
+    dis = np.mean(np.partition(dis, 3, axis=1)[:, 1:4], axis=1, keepdims=True)
+    return dis
+
 def generate_data(im_path):
     im = Image.open(im_path)
     im_w, im_h = im.size
@@ -47,14 +54,23 @@ def generate_data(im_path):
     return Image.fromarray(im), points
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Test ')
+    parser.add_argument('--origin-dir', default='/home/teddy/UCF-QNRF_ECCV18',
+                        help='original data directory')
+    parser.add_argument('--data-dir', default='/home/teddy/UCF-Train-Val-Test',
+                        help='processed data directory')
+    args = parser.parse_args()
+    return args
+
 if __name__ == '__main__':
-    root_path = '/home/teddy/UCF-QNRF_ECCV18'
-    save_dir = '/home/teddy/UCF-Train-Val-Test'
+    args = parse_args()
+    save_dir = args.data_dir
     min_size = 512
     max_size = 2048
 
     for phase in ['Train', 'Test']:
-        sub_dir = os.path.join(root_path, phase)
+        sub_dir = os.path.join(args.origin_dir, phase)
         if phase == 'Train':
             sub_phase_list = ['train', 'val']
             for sub_phase in sub_phase_list:
@@ -67,6 +83,9 @@ if __name__ == '__main__':
                         name = os.path.basename(im_path)
                         print(name)
                         im, points = generate_data(im_path)
+                        if sub_phase == 'train':
+                            dis = find_dis(points)
+                            points = np.concatenate((points, dis), axis=1)
                         im_save_path = os.path.join(sub_save_dir, name)
                         im.save(im_save_path)
                         gd_save_path = im_save_path.replace('jpg', 'npy')

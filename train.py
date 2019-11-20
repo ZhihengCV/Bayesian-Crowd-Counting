@@ -2,15 +2,13 @@ from utils.regression_trainer import RegTrainer
 import argparse
 import os
 import torch
-import numpy as np
-from random import seed
 args = None
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train ')
     parser.add_argument('--data-dir', default='/home/teddy/UCF-Train-Val-Test',
                         help='training data directory')
-    parser.add_argument('--save-dir', default='/home/teddy/iccv-reproduce-new',
+    parser.add_argument('--save-dir', default='/home/teddy/vgg',
                         help='directory to save models.')
 
     parser.add_argument('--lr', type=float, default=1e-5,
@@ -25,14 +23,12 @@ def parse_args():
                         help='max training epoch')
     parser.add_argument('--val-epoch', type=int, default=5,
                         help='the num of steps to log training information')
-    parser.add_argument('--val-start', type=int, default=200,
+    parser.add_argument('--val-start', type=int, default=600,
                         help='the epoch start to val')
-    parser.add_argument('--save-all-best', type=bool, default=True,
-                        help='whether to load opt state')
 
     parser.add_argument('--batch-size', type=int, default=1,
                         help='train batch size')
-    parser.add_argument('--device', default='9', help='assign device')
+    parser.add_argument('--device', default='0', help='assign device')
     parser.add_argument('--num-workers', type=int, default=8,
                         help='the num of training process')
 
