@@ -1,23 +1,21 @@
-# Bayesian-Crowd-Counting
+# Bayesian-Crowd-Counting （ICCV 2019 oral）
 [Arxiv](https://arxiv.org/abs/1908.03684) | [CVF](http://openaccess.thecvf.com/content_ICCV_2019/papers/Ma_Bayesian_Loss_for_Crowd_Count_Estimation_With_Point_Supervision_ICCV_2019_paper.pdf) 
 ###  Official Implement of ICCV 2019 oral paper "Bayesian Loss for Crowd Count Estimation with Point Supervision"
-####  ICCV 2019(oral)
-
 
 ## Visualization
-# Bayesian
+### Bayesian
 
-![]imgs/bayesian.png
+![](imgs/bayesian.png)
 
-# Bayesian+
+### Bayesian+
 
-![]imgs/bayesian+.png
+![](imgs/bayesian+.png)
 
-# Density
+### Density
 
-![]imgs/density.png
+![](imgs/density.png)
 
-### Citation
+## Citation
 If you use this code for your research, please cite our paper:
 
 ```
@@ -40,15 +38,25 @@ python -m pip install -r requirements.txt
 
 This code was tested with python 3.6  
 
-###  Train
-To train SinGAN model on your own image, put the desire training image under Input/Images, and run
+###  Train and Test
+
+1、 Dowload Dataset UCF-QNRF [Link](https://www.crcv.ucf.edu/data/ucf-qnrf/)
+
+2、 Pre-Process Data (resize image and split train/validation)
 
 ```
-python main_train.py --input_name <input_file_name>
+python preprocess_dataset.py --origin_dir <directory of original data> --data_dir <directory of processed data>
 ```
 
-This will also use the resulting trained model to generate random samples starting from the coarsest scale (n=0).
+3、 Train model (validate on single GTX Titan X)
 
-To run this code on a cpu machine, specify `--not_cuda` when calling `main_train.py`
+```
+python train.py --data_dir <directory of processed data> --save_dir <directory of log and model>
+```
 
-### Test
+4、 Test Model
+```
+python test.py --data_dir <directory of processed data> --save_dir <directory of log and model>
+```
+The result is slightly influenced by the random seed, but fixing the random seed (have to set cuda_benchmark to False) will make training time extrodinary long, so sometimes you can get a slightly worse result than the reported result, but most of time you can get a better result than the reported one. If you find this code is useful, please give us a star and cite our paper, have fun.
+
