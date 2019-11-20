@@ -7,15 +7,15 @@
 ## Visualization
 # Bayesian
 
-![]imgs/bayesian.png
+![](imgs/bayesian.png)
 
 # Bayesian+
 
-![]imgs/bayesian+.png
+![](imgs/bayesian+.png)
 
 # Density
 
-![]imgs/density.png
+![](imgs/density.png)
 
 ### Citation
 If you use this code for your research, please cite our paper:
