@@ -4,11 +4,18 @@
 ####  ICCV 2019(oral)
 
 
-## Poster
+## Visualization
+# Bayesian
 
+![]imgs/bayesian.png
 
+# Bayesian+
 
+![]imgs/bayesian+.png
 
+# Density
+
+![]imgs/density.png
 
 ### Citation
 If you use this code for your research, please cite our paper:
