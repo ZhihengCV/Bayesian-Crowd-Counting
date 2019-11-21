@@ -61,4 +61,4 @@ python test.py --data_dir <directory of processed data> --save_dir <directory of
 The result is slightly influenced by the random seed, but fixing the random seed (have to set cuda_benchmark to False) will make training time extrodinary long, so sometimes you can get a slightly worse result than the reported result, but most of time you can get a better result than the reported one. If you find this code is useful, please give us a star and cite our paper, have fun.
 
 ### Pretrain Weight
-Baidu Yun [Link](https://pan.baidu.com/s/1Evxxu1skHni3Iv3VxdcZvA)
+Baidu Yun [Link](https://pan.baidu.com/s/1Evxxu1skHni3Iv3VxdcZvA) extract code: x9wc
