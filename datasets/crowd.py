@@ -8,12 +8,23 @@ from torchvision import transforms
 import random
 import numpy as np
 
+
 def random_crop(im_h, im_w, crop_h, crop_w):
     res_h = im_h - crop_h
     res_w = im_w - crop_w
     i = random.randint(0, res_h)
     j = random.randint(0, res_w)
     return i, j, crop_h, crop_w
+
+
+def cal_innner_area(c_left, c_up, c_right, c_down, bbox):
+    inner_left = np.maximum(c_left, bbox[:, 0])
+    inner_up = np.maximum(c_up, bbox[:, 1])
+    inner_right = np.minimum(c_right, bbox[:, 2])
+    inner_down = np.minimum(c_down, bbox[:, 3])
+    inner_area = np.maximum(inner_right-inner_left, 0.0) * np.maximum(inner_down-inner_up, 0.0)
+    return inner_area
+
 
 
 class Crowd(data.Dataset):
@@ -60,16 +71,26 @@ class Crowd(data.Dataset):
             return img, len(keypoints), name
 
     def train_transform(self, img, keypoints):
+        """random crop image patch and find people in it"""
         wd, ht = img.size
-        st_size = 1.0 * min(wd, ht)
+        st_size = min(wd, ht)
         assert st_size >= self.c_size
         assert len(keypoints) > 0
         i, j, h, w = random_crop(ht, wd, self.c_size, self.c_size)
         img = F.crop(img, i, j, h, w)
-        keypoints = keypoints - [j, i]
-        idx_mask = (keypoints[:, 0] >= 0) * (keypoints[:, 0] <= w) * \
-                   (keypoints[:, 1] >= 0) * (keypoints[:, 1] <= h)
-        keypoints = keypoints[idx_mask]
+        nearest_dis = np.clip(keypoints[:, 2], 4.0, 128.0)
+
+        points_left_up = keypoints[:, :2] - nearest_dis[:, None] / 2.0
+        points_right_down = keypoints[:, :2] + nearest_dis[:, None] / 2.0
+        bbox = np.concatenate((points_left_up, points_right_down), axis=1)
+        inner_area = cal_innner_area(j, i, j+w, i+h, bbox)
+        origin_area = nearest_dis * nearest_dis
+        ratio = np.clip(1.0 * inner_area / origin_area, 0.0, 1.0)
+        mask = (ratio >= 0.3)
+
+        target = ratio[mask]
+        keypoints = keypoints[mask]
+        keypoints = keypoints[:, :2] - [j, i]  # change coodinate
         if len(keypoints) > 0:
             if random.random() > 0.5:
                 img = F.hflip(img)
@@ -77,4 +98,5 @@ class Crowd(data.Dataset):
         else:
             if random.random() > 0.5:
                 img = F.hflip(img)
-        return self.trans(img), torch.from_numpy(keypoints.copy()).float(), st_size
+        return self.trans(img), torch.from_numpy(keypoints.copy()).float(), \
+               torch.from_numpy(target.copy()).float(), st_size

@@ -20,8 +20,9 @@ def train_collate(batch):
     transposed_batch = list(zip(*batch))
     images = torch.stack(transposed_batch[0], 0)
     points = transposed_batch[1]  # the number of points is not fixed, keep it as a list of tensor
-    st_sizes = torch.FloatTensor(transposed_batch[2])
-    return images, points, st_sizes
+    targets = transposed_batch[2]
+    st_sizes = torch.FloatTensor(transposed_batch[3])
+    return images, points, targets, st_sizes
 
 
 class RegTrainer(Trainer):
@@ -99,16 +100,17 @@ class RegTrainer(Trainer):
         self.model.train()  # Set model to training mode
 
         # Iterate over data.
-        for step, (inputs, points, st_sizes) in enumerate(self.dataloaders['train']):
+        for step, (inputs, points, targets, st_sizes) in enumerate(self.dataloaders['train']):
             inputs = inputs.to(self.device)
             st_sizes = st_sizes.to(self.device)
             gd_count = np.array([len(p) for p in points], dtype=np.float32)
             points = [p.to(self.device) for p in points]
+            targets = [t.to(self.device) for t in targets]
 
             with torch.set_grad_enabled(True):
                 outputs = self.model(inputs)
                 prob_list = self.post_prob(points, st_sizes)
-                loss = self.criterion(prob_list, outputs)
+                loss = self.criterion(prob_list, targets, outputs)
 
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -134,7 +136,6 @@ class RegTrainer(Trainer):
         self.save_list.append(save_path)  # control the number of saved models
 
     def val_epoch(self):
-        args = self.args
         epoch_start = time.time()
         self.model.eval()  # Set model to evaluate mode
         epoch_res = []
@@ -161,11 +162,7 @@ class RegTrainer(Trainer):
             logging.info("save best mse {:.2f} mae {:.2f} model epoch {}".format(self.best_mse,
                                                                                  self.best_mae,
                                                                                  self.epoch))
-            if args.save_all_best:
-                torch.save(model_state_dic, os.path.join(self.save_dir, 'best_model_{}.pth'.format(self.best_count)))
-                self.best_count += 1
-            else:
-                torch.save(model_state_dic, os.path.join(self.save_dir, 'best_model.pth'))
+            torch.save(model_state_dic, os.path.join(self.save_dir, 'best_model.pth'))
 
 
 
