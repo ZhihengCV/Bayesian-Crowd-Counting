@@ -32,9 +32,7 @@ If you use this code for your research, please cite our paper:
 
 ### Install dependencies
 
-```
-python -m pip install -r requirements.txt
-```
+torch >= 1.0 torchvision opencv numpy scipy, all the dependencies can be easily installed by pip or conda
 
 This code was tested with python 3.6  
 
