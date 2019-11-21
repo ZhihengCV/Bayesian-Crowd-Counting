@@ -22,7 +22,7 @@ class Bay_Loss(Module):
                     target = torch.ones((N,), dtype=torch.float32, device=self.device)
                 pre_count = torch.sum(pre_density[idx].view((1, -1)) * prob, dim=1)  # flatten into vector
 
-        loss += torch.sum(torch.abs(target - pre_count))
+            loss += torch.sum(torch.abs(target - pre_count))
         loss = loss / len(prob_list)
         return loss
 
