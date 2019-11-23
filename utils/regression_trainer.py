@@ -77,10 +77,7 @@ class RegTrainer(Trainer):
         self.save_list = Save_Handle(max_num=args.max_model_num)
         self.best_mae = np.inf
         self.best_mse = np.inf
-        self.best_mae_1 = np.inf
-        self.best_mse_1 = np.inf
         self.best_count = 0
-        self.best_count_1 = 0
 
     def train(self):
         """training process"""
