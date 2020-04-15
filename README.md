@@ -58,7 +58,33 @@ python test.py --data_dir <directory of processed data> --save_dir <directory of
 ```
 The result is slightly influenced by the random seed, but fixing the random seed (have to set cuda_benchmark to False) will make training time extrodinary long, so sometimes you can get a slightly worse result than the reported result, but most of time you can get a better result than the reported one. If you find this code is useful, please give us a star and cite our paper, have fun.
 
+5、 Training on ShanghaiTech Dataset
+
+Change dataloader to crowd_sh.py
+
+For shanghaitech a, you should set learning rate to 1e-6, and bg_ratio to 0.1
+
 ### Pretrain Weight
+UCF-QNRF
 Baidu Yun [Link](https://pan.baidu.com/s/1Evxxu1skHni3Iv3VxdcZvA) extract code: x9wc
 
 Google Drive [Link](https://drive.google.com/file/d/1i22E7_zigkSm7nBnqMaEv00MD3CPhIDk/view?usp=sharing)
+
+ShanghaiTech A
+
+Baidu Yun [Link](https://pan.baidu.com/s/1GlaxGzFI8qFCHbqu56qSRw) extract code: tx0m
+
+Goodle Drive [Link](https://drive.google.com/file/d/13bEdshBY-brUvLSwTCOqDlK5QKcZIAAH/view?usp=sharing)
+
+ShanghaiTech B
+
+Baidu Yun [Link](https://pan.baidu.com/s/1YYg-a-sdhBAHZRJzZOU-6Q) extract code: a15u
+
+Goodle Drive [Link](https://drive.google.com/file/d/1woK-bI_JyeY9wZL2pXsWgPzQqhD8Qy0u/view?usp=sharing)
+
+### License
+
+GNU GENERAL PUBLIC LICENSE 
+Version 3, 29 June 2007
+Copyright © 2007 Free Software Foundation, Inc. <http://fsf.org/>
+
