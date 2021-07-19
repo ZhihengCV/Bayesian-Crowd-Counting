@@ -36,8 +36,7 @@ class Post_Prob(Module):
                 if len(dis) > 0:
                     if self.use_bg:
                         min_dis = torch.clamp(torch.min(dis, dim=0, keepdim=True)[0], min=0.0)
-                        d = st_size * self.bg_ratio
-                        bg_dis = (d - torch.sqrt(min_dis))**2
+                        bg_dis = (st_size * self.bg_ratio) ** 2 / (min_dis + 1e-5)
                         dis = torch.cat([dis, bg_dis], 0)  # concatenate background distance to the last
                     dis = -dis / (2.0 * self.sigma ** 2)
                     prob = self.softmax(dis)
