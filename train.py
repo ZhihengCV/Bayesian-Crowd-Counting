@@ -51,6 +51,7 @@ def parse_args():
 
 if __name__ == '__main__':
     args = parse_args()
+    print(args.batch_size)
     torch.backends.cudnn.benchmark = True
     os.environ['CUDA_VISIBLE_DEVICES'] = args.device.strip()  # set vis gpu
     trainer = RegTrainer(args)
