@@ -2,7 +2,9 @@ from utils.regression_trainer import RegTrainer
 import argparse
 import os
 import torch
+
 args = None
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train ')
@@ -45,6 +47,8 @@ def parse_args():
                         help='sigma for likelihood')
     parser.add_argument('--background-ratio', type=float, default=1.0,
                         help='background ratio')
+    parser.add_argument('--model', type=str, default='vgg19',
+                        help='the model use to train')
     args = parser.parse_args()
     return args
 
