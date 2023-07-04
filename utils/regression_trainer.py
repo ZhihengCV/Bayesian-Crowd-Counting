@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from utils.trainer import Trainer
 from utils.helper import Save_Handle, AverageMeter
 import os
@@ -9,9 +11,11 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 import logging
 import numpy as np
+
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from  models.vgg import vgg19
-from datasets.crowd import Crowd
+import models.vgg
+# from datasets.crowd import Crowd
+from datasets.crowd_sh import Crowd
 from losses.bay_loss import Bay_Loss
 from losses.post_prob import Post_Prob
 
@@ -47,12 +51,22 @@ class RegTrainer(Trainer):
                                           collate_fn=(train_collate
                                                       if x == 'train' else default_collate),
                                           batch_size=(args.batch_size
-                                          if x == 'train' else 1),
+                                                      if x == 'train' else 1),
                                           shuffle=(True if x == 'train' else False),
-                                          num_workers=args.num_workers*self.device_count,
+                                          num_workers=args.num_workers * self.device_count,
                                           pin_memory=(True if x == 'train' else False))
                             for x in ['train', 'val']}
-        self.model =vgg19()
+
+        if args.model == 'vgg19':
+            self.model = models.vgg.vgg19()
+        elif args.model == 'vgg16':
+            self.model = models.vgg.vgg16()
+        elif args.model == 'resnet18':
+            self.model = models.vgg.resnet18()
+        else:
+            print("Invalid Model Type!")
+            exit(0)
+
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 
@@ -78,18 +92,29 @@ class RegTrainer(Trainer):
         self.best_mae = np.inf
         self.best_mse = np.inf
         self.best_count = 0
+        self.epoch_vallist = []
+        self.biaslist = []
+        self.losslist = []
 
     def train(self):
         """training process"""
         args = self.args
         for epoch in range(self.start_epoch, args.max_epoch):
-            logging.info('-'*5 + 'Epoch {}/{}'.format(epoch, args.max_epoch - 1) + '-'*5)
+            logging.info('-' * 5 + 'Epoch {}/{}'.format(epoch, args.max_epoch - 1) + '-' * 5)
             self.epoch = epoch
-            self.train_eopch()
-            if epoch % args.val_epoch == 0 and epoch >= args.val_start:
+            self.train_epoch()
+            if (epoch % args.val_epoch == 0 and epoch >= args.val_start) or epoch == args.max_epoch:
                 self.val_epoch()
+        plt.figure()
+        plt.title('train loss and val bias')
+        plt.xlabel("Epoch", fontsize=14)
+        plt.ylabel("train loss & val bias", fontsize=14)
+        plt.plot(list(range(self.start_epoch, args.max_epoch)), self.losslist, label="train loss")
+        plt.plot(self.epoch_vallist, self.biaslist, label="val bias")
+        plt.legend(loc="upper right")
+        plt.savefig(os.path.join(self.save_dir, "loss_and_bias.jpg"))
 
-    def train_eopch(self):
+    def train_epoch(self):
         epoch_loss = AverageMeter()
         epoch_mae = AverageMeter()
         epoch_mse = AverageMeter()
@@ -122,7 +147,7 @@ class RegTrainer(Trainer):
 
         logging.info('Epoch {} Train, Loss: {:.2f}, MSE: {:.2f} MAE: {:.2f}, Cost {:.1f} sec'
                      .format(self.epoch, epoch_loss.get_avg(), np.sqrt(epoch_mse.get_avg()), epoch_mae.get_avg(),
-                             time.time()-epoch_start))
+                             time.time() - epoch_start))
         model_state_dic = self.model.state_dict()
         save_path = os.path.join(self.save_dir, '{}_ckpt.tar'.format(self.epoch))
         torch.save({
@@ -131,6 +156,7 @@ class RegTrainer(Trainer):
             'model_state_dict': model_state_dic
         }, save_path)
         self.save_list.append(save_path)  # control the number of saved models
+        self.losslist.append(epoch_loss.get_avg())
 
     def val_epoch(self):
         epoch_start = time.time()
@@ -150,9 +176,11 @@ class RegTrainer(Trainer):
         mse = np.sqrt(np.mean(np.square(epoch_res)))
         mae = np.mean(np.abs(epoch_res))
         logging.info('Epoch {} Val, MSE: {:.2f} MAE: {:.2f}, Cost {:.1f} sec'
-                     .format(self.epoch, mse, mae, time.time()-epoch_start))
+                     .format(self.epoch, mse, mae, time.time() - epoch_start))
 
         model_state_dic = self.model.state_dict()
+        self.biaslist.append((2.0 * mse + mae) / 3)
+        self.epoch_vallist.append(self.epoch)
         if (2.0 * mse + mae) < (2.0 * self.best_mse + self.best_mae):
             self.best_mse = mse
             self.best_mae = mae
@@ -160,6 +188,3 @@ class RegTrainer(Trainer):
                                                                                  self.best_mae,
                                                                                  self.epoch))
             torch.save(model_state_dic, os.path.join(self.save_dir, 'best_model.pth'))
-
-
-

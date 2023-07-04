@@ -22,9 +22,8 @@ def cal_innner_area(c_left, c_up, c_right, c_down, bbox):
     inner_up = np.maximum(c_up, bbox[:, 1])
     inner_right = np.minimum(c_right, bbox[:, 2])
     inner_down = np.minimum(c_down, bbox[:, 3])
-    inner_area = np.maximum(inner_right-inner_left, 0.0) * np.maximum(inner_down-inner_up, 0.0)
+    inner_area = np.maximum(inner_right - inner_left, 0.0) * np.maximum(inner_down - inner_up, 0.0)
     return inner_area
-
 
 
 class Crowd(data.Dataset):
@@ -83,7 +82,7 @@ class Crowd(data.Dataset):
         points_left_up = keypoints[:, :2] - nearest_dis[:, None] / 2.0
         points_right_down = keypoints[:, :2] + nearest_dis[:, None] / 2.0
         bbox = np.concatenate((points_left_up, points_right_down), axis=1)
-        inner_area = cal_innner_area(j, i, j+w, i+h, bbox)
+        inner_area = cal_innner_area(j, i, j + w, i + h, bbox)
         origin_area = nearest_dis * nearest_dis
         ratio = np.clip(1.0 * inner_area / origin_area, 0.0, 1.0)
         mask = (ratio >= 0.3)
